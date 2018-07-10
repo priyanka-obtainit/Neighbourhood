@@ -1,6 +1,7 @@
 var map;
 var fortInfo = {};
 var bounds = {};
+// fort locations
 var locations = [
     { title: 'Mahim Fort', location: { lat: 19.0421, lng: 72.8379 } },
     { title: 'Karnala Fort', location: { lat: 18.881111, lng: 73.118056 } },
@@ -11,7 +12,7 @@ var locations = [
     { title: 'Madh Fort', location: { lat: 19.135754, lng: 72.795319 } },
 ];
 function plotMap() {
-    // Constructor creates a new map - only center and zoom are required.
+    // map initialization
     map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 19.0760, lng: 72.8777 },
         styles: styles,
@@ -23,7 +24,7 @@ function plotMap() {
     bounds = new google.maps.LatLngBounds();
     ko.applyBindings(new ViewModel());
 }
-// handle map error
+// error handling
 function googleMapsError() {
     alert('An error occurred with Google Maps!');
 }
@@ -77,6 +78,7 @@ var fortMarkModel = function (fort) {
     });
     //#end region get place information using facebook place api
 
+      // display details about the marker places
     function ShowFortInfo(marker, fort) {
         console.log(self.fort);
         var html = '<table><tr><td colspan="2"><b>' + self.fort.fortname + '</b></td></tr>'
@@ -95,7 +97,7 @@ var fortMarkModel = function (fort) {
       };
 
 }
-
+//binds the data to the view
 var ViewModel = function () {
     var self = this;
     this.searchFort = ko.observable('');
