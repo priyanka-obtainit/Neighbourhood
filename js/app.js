@@ -34,7 +34,7 @@ var fortMarkModel = function (fort) {
     var self = this;
     this.visible = ko.observable(true);
 
-    // Create a marker per location, and put into markers array.
+    // Maker creation
     var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
     this.marker = new google.maps.Marker({
         position: this.position,
@@ -63,14 +63,14 @@ var fortMarkModel = function (fort) {
         fortname: '',
         fortImage: '',
         city: ''
-    }
+    };
     $.getJSON(FacebookPlaceApi).done(function (response) {
         var palceInfo = response.data[0];
         self.fort = {
             fortname: palceInfo.name,
             fortImage: palceInfo.picture.data.url,
             city: palceInfo.location.city
-        }
+        };
     }).fail(function () {
         alert(
             "Error occurred. Please refresh your page to try again."
@@ -78,52 +78,67 @@ var fortMarkModel = function (fort) {
     });
     //#end region get place information using facebook place api
 
-      // display details about the marker places
+    // display details about the marker places
     function ShowFortInfo(marker, fort) {
         console.log(self.fort);
         var html = '<table><tr><td colspan="2"><b>' + self.fort.fortname + '</b></td></tr>'
             + '<tr><td><b>' + self.fort.city + '</b></td></tr>'
             + '<tr><td><img src="' + self.fort.fortImage + '" alt="' + self.fort.fortname + '"</td>'
-            + '</table>'
+            + '</table>';
         fortInfo.setContent(html);
         fortInfo.open(map, marker);
     }
-    this.marker.addListener('click', function () {
 
-        ShowFortInfo(this, this.fort);
-    });
-    this.fortNameClick = function(fort) {
+
+    this.fortNameClick = function (fort) {
         google.maps.event.trigger(self.marker, 'click');
-      };
+    };
 
-}
-//binds the data to the view
-var ViewModel = function () {
-    var self = this;
-    this.searchFort = ko.observable('');
-    self.FortList = ko.observableArray([]);
-    locations.forEach(function (location) {
-        self.FortList.push(new fortMarkModel(location));
-    });
-    this.forPositionList = ko.computed(function () {
-        debugger
-        var searchList = self.searchFort().toLowerCase();
-        if (searchList) {
-            return ko.utils.arrayFilter(self.FortList(), function (location) {
-                console.log(location.title);
-                var str = location.title.toLowerCase();
-                var result = str.includes(searchList);
-                location.visible(result);
-                return result;
-            });
+    
+
+    function toggleBounce() {
+        if (self.marker.getAnimation() !== null) {
+            self.marker.setAnimation(null);
+        } else {
+            self.marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(function(){ self.marker.setAnimation(null); }, 850);
         }
-        self.FortList().forEach(function (location) {
-            location.visible(true);
+    }
+
+        this.marker.addListener('click', function () {
+            ShowFortInfo(this, this.fort);
         });
-        return self.FortList();
-    }, self);
-    console.log(this.forPositionList());
-};
+        this.marker.addListener('click', function () {
+            toggleBounce();
+        });
+
+    };
+    //binds the data to the view
+    var ViewModel = function () {
+        var self = this;
+        this.searchFort = ko.observable('');
+        self.FortList = ko.observableArray([]);
+        locations.forEach(function (location) {
+            self.FortList.push(new fortMarkModel(location));
+        });
+        this.forPositionList = ko.computed(function () {
+            var searchList = self.searchFort().toLowerCase();
+            if (searchList) {
+                return ko.utils.arrayFilter(self.FortList(), function (location) {
+                    console.log(location.title);
+                    var str = location.title.toLowerCase();
+                    var result = str.includes(searchList);
+                    location.visible(result);
+                    return result;
+                });
+            }
+            self.FortList().forEach(function (location) {
+                location.visible(true);
+            });
+            return self.FortList();
+        }, self);
+        console.log(this.forPositionList());
+    };
 
 
 
